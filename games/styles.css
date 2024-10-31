@@ -8,6 +8,10 @@
     width: 500px;
     height: 200px;
     border: 2px solid black;
+    background-image: url("maxresdefault.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #message{
@@ -17,6 +21,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 10px;
+    background-color: white;
 }
 
 #score{
@@ -26,6 +31,7 @@
     left: 100%;
     transform: translate(-100%, -50%);
     padding: 10px;
+    background-color: white;
 }
 
 #character{
@@ -34,6 +40,7 @@
     background-color: red;
     position: relative;
     top: 150px;
+    left: 15px;
 }
 
 #block{
