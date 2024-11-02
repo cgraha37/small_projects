@@ -64,6 +64,15 @@
     100%{top: 150px;}
 }
 
-.animate{
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.character_jump{
     animation: jump 500ms infinite;
+}
+
+.character_blink{
+    visibility: hidden;
 }

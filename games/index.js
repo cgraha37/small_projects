@@ -5,7 +5,12 @@ const chtr = document.getElementById("character");
 const msg = document.getElementById("message");
 const scr = document.getElementById("score");
 const game = document.getElementById("game");
+const yay = document.getElementById("yay");
+const dang = document.getElementById("dang");
+const jeez = document.getElementById("jeez");
 let score = 0;
+let highest = 0;
+
 const scoresObj = {
     highScores: []
 };
@@ -22,7 +27,7 @@ document.addEventListener("readystatechange", (event) => {
 
 // begins the game
 const start_game = () => {
-
+ 
     block.style.display = "block";
     score = 0;
     scr.textContent = `Score = ${score}`;
@@ -33,7 +38,7 @@ const start_game = () => {
             jump();
         } 
         
-        block.style.animation = "block 1s infinite linear";
+       block.style.animation = "block 1s infinite linear";
     
     });
     checkCollision();
@@ -44,66 +49,97 @@ const start_game = () => {
 // allows jumping
 const jump = () => {
 
-    if (chtr.classList != "animate"){
-        chtr.classList.add("animate");
+    if (!chtr.classList.contains("character_jump")){
+        chtr.classList.add("character_jump");
     }
     setTimeout(()=>{
-        chtr.classList.remove("animate");
+        chtr.classList.remove("character_jump");
     }, 500)
 
 }
 
+const end_game = (cont) => {
+
+    cancelAnimationFrame(cont);
+    jeez.play();
+    console.log('Collision detected!');
+
+    block.style.display = "none";
+    block.style.animation = "none";
+
+    msg.textContent = "Game Over";
+
+    const playerName = prompt("Enter your name:");
+
+    // logging score
+    const topScores = JSON.parse(localStorage.getItem("highScores"));
+    console.log(topScores);
+    topScores["highScores"].push([playerName, highest]);
+    topScores["highScores"].sort((a, b) => b[1] - a[1]);
+    if(topScores["highScores"].length == 11){
+        topScores["highScores"].pop();
+    }
+    localStorage.setItem("highScores", JSON.stringify(topScores));
+
+    setTimeout(()=>{
+        msg.textContent = `Highest Score ${highest}`;
+    }, 2000);
+    setTimeout(()=>{
+        msg.textContent = "Play Again?  (Press Space)";
+    }, 4000);
+    msg.style.display = "block";
+
+    block.style.display = "block";
+    restart();
+}
+
 // checks if elements collide or pass
-function checkCollision() {
+const checkCollision = () => {
     
     const req = requestAnimationFrame(checkCollision);
-    if (isColliding(block, chtr)) {
+    if (is_colliding(block, chtr)) {
 
-        // Collision detected
         cancelAnimationFrame(req);
-        console.log('Collision detected!');
+        score -= 5;
+        if (score <= 0) end_game(req);
+        else {
+            dang.play();
+            chtr.classList.add("character_blink")
+            const blink = setInterval(()=>{
+                chtr.classList.toggle("character_blink");
+            }, 229);
 
-        block.style.display = "none";
-        block.style.animation = "none";
+            setTimeout(()=>{
+                clearInterval(blink);
+                chtr.classList.remove("character_blink")
+            }, 1375);
+            
+            console.log("here");
 
-        msg.textContent = "You Lost";
-
-        const playerName = prompt("Enter your name:");
-
-        // logging score
-        const topScores = JSON.parse(localStorage.getItem("highScores"));
-        console.log(topScores);
-        topScores["highScores"].push([playerName, score]);
-        topScores["highScores"].sort((a, b) => b[1] - a[1]);
-        if(topScores["highScores"].length == 11){
-            topScores["highScores"].pop();
+            setTimeout(()=>{
+                requestAnimationFrame(checkCollision);
+                }, 1375);
         }
-        localStorage.setItem("highScores", JSON.stringify(topScores));
-
-        setTimeout(()=>{
-            msg.textContent = "Play Again?";
-        }, 2000);
-        msg.style.display = "block";
-
-        block.style.display = "block";
-        restart();
-
-    } else if(isPassed(block, chtr)){
+    } else if(is_passed(block, chtr)){
         cancelAnimationFrame(req);
+        yay.play();
         console.log('Block Passed!');
         score += 1;
+
+        if(score > highest) highest = score;
+
         console.log(score);
-        scr.textContent = `Score = ${score}`;
 
         setTimeout(() => {
             requestAnimationFrame(checkCollision);
         }, 300);
-
     }
+
+    scr.textContent = `Score = ${score}`;
 }
 
 // defines what colliding is
-const isColliding = (element1, element2) => {
+const is_colliding = (element1, element2) => {
     const rect1 = element1.getBoundingClientRect();
     const rect2 = element2.getBoundingClientRect();
 
@@ -116,7 +152,7 @@ const isColliding = (element1, element2) => {
 }
 
 // defines what passing is
-const isPassed = (element1, element2) => {
+const is_passed = (element1, element2) => {
     const rect1 = element1.getBoundingClientRect();
     const rect2 = element2.getBoundingClientRect();
 
@@ -142,7 +178,6 @@ const restart = () => {
     });
 
     document.addEventListener("keydown", final_step);
-
 }
 
 // removes final eventListener
